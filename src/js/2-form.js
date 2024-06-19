@@ -2,33 +2,26 @@ const form = document.querySelector('.feedback-form');
 const email = document.querySelector('input[name=email]');
 const message = document.querySelector('textarea[name=message]');
 const localStorageKey = 'feedback-form-state';
-const savedInfo = localStorage.getItem('feedback-form-state');
-let formdata = {
-  email_user: '',
-  message_user: '',
+
+let formData = {
+  email: '',
+  message: '',
 };
 
 checkData();
 
-let { email_user, message_user } = formdata;
-
 form.addEventListener('submit', handlerSent);
 form.addEventListener('input', evt => {
-  if (evt.target === email) {
-    formdata.email_user = evt.target.value;
-  } else if (evt.target === message) {
-    formdata.message_user = evt.target.value;
-  }
-  localStorage.setItem(localStorageKey, JSON.stringify(formdata));
+  formData[evt.target.name] = evt.target.value;
+  localStorage.setItem(localStorageKey, JSON.stringify(formData));
 });
 
 function checkData() {
+  const savedInfo = localStorage.getItem(localStorageKey);
   if (savedInfo) {
-    const parsedInfo = JSON.parse(savedInfo);
-    formdata.email_user = parsedInfo.email_user;
-    formdata.message_user = parsedInfo.message_user;
-    email.value = parsedInfo.email_user;
-    message.value = parsedInfo.message_user;
+    formData = JSON.parse(savedInfo);
+    email.value = formData.email || '';
+    message.value = formData.message || '';
   } else {
     email.value = '';
     message.value = '';
@@ -37,13 +30,12 @@ function checkData() {
 
 function handlerSent(evt) {
   evt.preventDefault();
-  if (email.value == '' || message.value == '') {
+  if (email.value.trim() === '' || message.value.trim() === '') {
     alert('Fill please all fields');
   } else {
-    console.log(formdata);
-    localStorage.clear();
-
-    formdata = { email: '', message: '' };
+    console.log(formData);
+    localStorage.removeItem(localStorageKey);
+    formData = { email: '', message: '' };
     form.reset();
   }
 }
